@@ -13,7 +13,6 @@ use neTpyceB\TMCms\HTML\Cms\Columns;
 use neTpyceB\TMCms\HTML\Cms\Element\CmsButton;
 use neTpyceB\TMCms\Log\App;
 use TMCms\Modules\Faq\Entity\FaqCategoryEntityRepository;
-use TMCms\Modules\Faq\ModuleFaq;
 use TMCms\Modules\Faq\Entity\FaqCategoryEntity;
 use TMCms\Modules\Faq\Entity\FaqEntity;
 use TMCms\Modules\Faq\Entity\FaqEntityRepository;
