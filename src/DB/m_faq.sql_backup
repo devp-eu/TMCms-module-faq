@@ -1,0 +1,1 @@
+CREATE TABLE `m_faq` (  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,  `category_id` int(10) unsigned NOT NULL,  `title` int(10) unsigned NOT NULL COMMENT 'translation',  `text` int(10) unsigned NOT NULL COMMENT 'translation',  PRIMARY KEY (`id`),  KEY `category_id` (`category_id`)) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
