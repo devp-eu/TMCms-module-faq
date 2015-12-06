@@ -1,10 +1,9 @@
 <?php
 
-namespace TMCms\Modules\Clients;
+namespace TMCms\Modules\Faq;
 
 use neTpyceB\TMCms\Modules\IModule;
 use neTpyceB\TMCms\Traits\singletonInstanceTrait;
-use TMCms\Modules\Faq\Entity\FaqCategoryEntity;
 use TMCms\Modules\Faq\Entity\FaqCategoryEntityRepository;
 use TMCms\Modules\Faq\Entity\FaqEntityRepository;
 

@@ -13,7 +13,7 @@ use neTpyceB\TMCms\HTML\Cms\Columns;
 use neTpyceB\TMCms\HTML\Cms\Element\CmsButton;
 use neTpyceB\TMCms\Log\App;
 use TMCms\Modules\Faq\Entity\FaqCategoryEntityRepository;
-use TMCms\Modules\Clients\ModuleFaq;
+use TMCms\Modules\Faq\ModuleFaq;
 use TMCms\Modules\Faq\Entity\FaqCategoryEntity;
 use TMCms\Modules\Faq\Entity\FaqEntity;
 use TMCms\Modules\Faq\Entity\FaqEntityRepository;
@@ -24,7 +24,7 @@ Menu::getInstance()->addSubMenuItem('categories');
 
 class CmsFaq
 {
-    /** Clients */
+    /** Faqs */
 
     public static function _default()
     {
@@ -41,7 +41,8 @@ class CmsFaq
 
         echo CmsTable::getInstance()
             ->addData($faqs)
-            ->addColumn(ColumnData::getInstance('title')
+            ->addColumn(ColumnEdit::getInstance('title')
+                ->setHref('?p=' . P . '&do=edit&id={%id%}')
                 ->enableOrderableColumn()
                 ->enableTranslationColumn()
             )
@@ -49,11 +50,6 @@ class CmsFaq
                 ->enableOrderableColumn()
                 ->setPairedDataOptionsForKeys($categories->getPairs('title'))
                 ->setTitle('Category')
-            )
-            ->addColumn(ColumnEdit::getInstance('edit')
-                ->setHref('?p=' . P . '&do=edit&id={%id%}')
-                ->setWidth('1%')
-                ->setValue('edit')
             )
             ->addColumn(ColumnDelete::getInstance()
                 ->setHref('?p=' . P . '&do=_delete&id={%id%}')
