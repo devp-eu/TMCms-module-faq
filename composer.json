@@ -1,0 +1,21 @@
+{
+  "name": "neTpyceB/TMCms-module-faq",
+  "type": "library",
+  "description": "Module FAQ (frequently asked questions) for TMCms",
+  "keywords": ["module", "faq"],
+  "homepage": "http://devp.lv/",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Vadims Petrusevs",
+      "email": "info@devp.lv",
+      "homepage": "http://devp.lv/",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "TMCms\\Modules\\Faq\\": "src"
+    }
+  }
+}
