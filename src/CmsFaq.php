@@ -2,16 +2,16 @@
 
 namespace TMCms\Modules\Faq;
 
-use neTpyceB\TMCms\Admin\Menu;
-use neTpyceB\TMCms\Admin\Messages;
-use neTpyceB\TMCms\HTML\Cms\CmsFormHelper;
-use neTpyceB\TMCms\HTML\Cms\CmsTable;
-use neTpyceB\TMCms\HTML\Cms\Column\ColumnData;
-use neTpyceB\TMCms\HTML\Cms\Column\ColumnDelete;
-use neTpyceB\TMCms\HTML\Cms\Column\ColumnEdit;
-use neTpyceB\TMCms\HTML\Cms\Columns;
-use neTpyceB\TMCms\HTML\Cms\Element\CmsButton;
-use neTpyceB\TMCms\Log\App;
+use TMCms\Admin\Menu;
+use TMCms\Admin\Messages;
+use TMCms\HTML\Cms\CmsFormHelper;
+use TMCms\HTML\Cms\CmsTable;
+use TMCms\HTML\Cms\Column\ColumnData;
+use TMCms\HTML\Cms\Column\ColumnDelete;
+use TMCms\HTML\Cms\Column\ColumnEdit;
+use TMCms\HTML\Cms\Columns;
+use TMCms\HTML\Cms\Element\CmsButton;
+use TMCms\Log\App;
 use TMCms\Modules\Faq\Entity\FaqCategoryEntityRepository;
 use TMCms\Modules\Faq\Entity\FaqCategoryEntity;
 use TMCms\Modules\Faq\Entity\FaqEntity;

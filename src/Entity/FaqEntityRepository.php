@@ -2,7 +2,7 @@
 
 namespace TMCms\Modules\Faq\Entity;
 
-use neTpyceB\TMCms\Orm\EntityRepository;
+use TMCms\Orm\EntityRepository;
 
 /**
  * Class FaqEntityRepository
@@ -14,4 +14,17 @@ use neTpyceB\TMCms\Orm\EntityRepository;
 class FaqEntityRepository extends EntityRepository {
     protected $db_table = 'm_faq';
     protected $translation_fields = ['title', 'text'];
+    protected $table_structure = [
+        'fields' => [
+            'category_id' => [
+                'type' => 'index',
+            ],
+            'title' => [
+                'type' => 'translation',
+            ],
+            'text' => [
+                'type' => 'translation',
+            ],
+        ],
+    ];
 }
