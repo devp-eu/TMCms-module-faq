@@ -2,7 +2,7 @@
   "name": "devp-eu/tmcms-module-faq",
   "type": "library",
   "description": "Module FAQ (frequently asked questions) for TMCms",
-  "keywords": ["module", "faq"],
+  "keywords": ["module", "faq", "TMcms"],
   "homepage": "http://devp.eu/",
   "license": "proprietary",
   "authors": [

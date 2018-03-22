@@ -1,78 +1,81 @@
 <?php
+declare(strict_types=1);
 
 namespace TMCms\Modules\Faq;
 
-use TMCms\Admin\Menu;
 use TMCms\Admin\Messages;
+use TMCms\HTML\BreadCrumbs;
+use TMCms\HTML\Cms\CmsForm;
 use TMCms\HTML\Cms\CmsFormHelper;
-use TMCms\HTML\Cms\CmsTable;
-use TMCms\HTML\Cms\Column\ColumnData;
-use TMCms\HTML\Cms\Column\ColumnDelete;
-use TMCms\HTML\Cms\Column\ColumnEdit;
-use TMCms\HTML\Cms\Columns;
-use TMCms\HTML\Cms\Element\CmsButton;
+use TMCms\HTML\Cms\CmsTableHelper;
 use TMCms\Log\App;
-use TMCms\Modules\Faq\Entity\FaqCategoryEntityRepository;
 use TMCms\Modules\Faq\Entity\FaqCategoryEntity;
+use TMCms\Modules\Faq\Entity\FaqCategoryEntityRepository;
 use TMCms\Modules\Faq\Entity\FaqEntity;
 use TMCms\Modules\Faq\Entity\FaqEntityRepository;
 
-defined('INC') or exit;
+\defined('INC') or exit;
 
-Menu::getInstance()->addSubMenuItem('categories');
-
+/**
+ * Class CmsFaq
+ * @package TMCms\Modules\Faq
+ */
 class CmsFaq
 {
     /** Faqs */
 
     public static function _default()
     {
-        echo Columns::getInstance()
-            ->add('<a class="btn btn-success" href="?p=' . P . '&do=add">Add new Faq</a>', ['align' => 'right'])
+        BreadCrumbs::getInstance()
+            ->addAction('Add Faq', '?p=' . P . '&do=add')
         ;
-
-        echo '<br>';
 
         $faqs = new FaqEntityRepository();
-        $faqs->addOrderByField('id');
+        $faqs->addOrderByField();
 
         $categories = new FaqCategoryEntityRepository();
 
-        echo CmsTable::getInstance()
-            ->addData($faqs)
-            ->addColumn(ColumnEdit::getInstance('title')
-                ->setHref('?p=' . P . '&do=edit&id={%id%}')
-                ->enableOrderableColumn()
-                ->enableTranslationColumn()
-            )
-            ->addColumn(ColumnData::getInstance('category_id')
-                ->enableOrderableColumn()
-                ->setPairedDataOptionsForKeys($categories->getPairs('title'))
-                ->setTitle('Category')
-            )
-            ->addColumn(ColumnDelete::getInstance()
-                ->setHref('?p=' . P . '&do=_delete&id={%id%}')
-            )
-        ;
-    }
-
-    private static function __faqs_add_edit_form($data = NULL)
-    {
-        $categories = new FaqCategoryEntityRepository();
-
-        return CmsFormHelper::outputForm(ModuleFaq::$tables['faq'], [
-            'action' => '?p='. P .'&do=_add',
-            'button' => 'Add',
-            'data' => $data,
-            'fields' => [
+        echo CmsTableHelper::outputTable([
+            'data' => $faqs,
+            'columns' => [
+                'title' => [
+                    'translation' => true,
+                ],
                 'category_id' => [
                     'title' => 'Category',
                     'options' => $categories->getPairs('title'),
                 ],
-                'title' => [
+            ],
+            'active' => true,
+            'edit' => true,
+            'orders' => true,
+            'delete' => true,
+        ]);
+    }
+
+    /**
+     * @param int $faq_id
+     *
+     * @return CmsForm
+     */
+    private static function _faqs_add_edit_form(int $faq_id = 0): CmsForm
+    {
+        $categories = new FaqCategoryEntityRepository();
+
+        $faq = new FaqEntity($faq_id);
+
+        return CmsFormHelper::outputForm($faq->getDbTableName(), [
+            'button' => 'Save',
+            'data' => $faq,
+            'fields' => [
+                FaqEntityRepository::FIELD_CATEGORY_ID => [
+                    'title' => 'Category',
+                    'options' => $categories->getPairs('title'),
+                ],
+                FaqEntityRepository::FIELD_TITLE => [
                     'translation' => true,
                 ],
-                'text' => [
+                FaqEntityRepository::FIELD_TEXT => [
                     'translation' => true,
                     'type' => 'textarea',
                     'edit' => 'wysiwyg',
@@ -83,19 +86,12 @@ class CmsFaq
 
     public static function add()
     {
-        echo self::__faqs_add_edit_form();
+        echo self::_faqs_add_edit_form();
     }
 
     public static function edit()
     {
-        if (!isset($_GET['id']) || !ctype_digit((string)$_GET['id'])) return;
-        $id = $_GET['id'];
-
-        $faq = new FaqEntity($id);
-
-        echo self::__faqs_add_edit_form($faq)
-            ->setAction('?p=' . P . '&do=_edit&id=' . $id)
-            ->setSubmitButton(new CmsButton('Update'));
+        echo self::_faqs_add_edit_form((int)$_GET['id']);
     }
 
     public static function _add()
@@ -105,77 +101,94 @@ class CmsFaq
         $faq->save();
 
         App::add('Faq '. $faq->getTitle() .' created');
-
-        Messages::sendMessage('Faq created');
+        Messages::sendMessage('Faq '. $faq->getTitle() .' created');
 
         go('?p=' . P . '&highlight=' . $faq->getId());
     }
 
     public static function _edit()
     {
-        if (!isset($_GET['id']) || !ctype_digit((string)$_GET['id'])) return;
-        $id = $_GET['id'];
-
-        $faq = new FaqEntity($id);
+        $faq = new FaqEntity($_GET['id']);
         $faq->loadDataFromArray($_POST);
         $faq->save();
 
         App::add('Faq '. $faq->getTitle() .' updated');
+        Messages::sendMessage('Faq '. $faq->getTitle() .' updated');
 
-        Messages::sendMessage('Faq updated');
-
-        go('?p=' . P . '&highlight=' . $id);
+        go('?p=' . P . '&highlight=' . $faq->getId());
     }
 
-    public static function _delete()
+    public static function _active()
     {
-        if (!isset($_GET['id']) || !ctype_digit((string)$_GET['id'])) return;
-        $id = $_GET['id'];
+        $faq = new FaqEntity($_GET['id']);
+        $faq->flipBoolValue('active');
+        $faq->save();
 
-        $faq = new FaqEntity($id);
-        $faq->deleteObject();
+        App::add('Faq '. $faq->getTitle() .' updated');
+        Messages::sendGreenAlert('Faq '. $faq->getTitle() .' updated');
 
-        App::add('Faq '. $faq->getTitle() .' deleted');
-
-        Messages::sendMessage('Faq deleted');
+        if (IS_AJAX_REQUEST) {
+            die('1');
+        }
 
         back();
     }
 
+    public function _order()
+    {
+        $faq = new FaqEntity($_GET['id']);
+        $faq->processOrderAction();
+    }
+
+    public static function _delete()
+    {
+        $faq = new FaqEntity($_GET['id']);
+        $faq->deleteObject();
+
+        App::add('Faq '. $faq->getTitle() .' deleted');
+        Messages::sendMessage('Faq '. $faq->getTitle() .' deleted');
+
+        back();
+    }
 
 
     /** Categories */
 
     public static function categories()
     {
+        BreadCrumbs::getInstance()
+            ->addAction('Add Category', '?p=' . P . '&do=categories_add')
+        ;
+
         $categories = new FaqCategoryEntityRepository();
-        $categories->addOrderByField('id');
 
-        echo Columns::getInstance()
-            ->add('<a class="btn btn-success" href="?p=' . P . '&do=categories_add">Add Category</a>', ['align' => 'right'])
-        ;
-
-        echo '<br>';
-
-        echo CmsTable::getInstance()
-            ->addData($categories)
-            ->addColumn(ColumnEdit::getInstance('title')
-                ->setHref('?p=' . P . '&do=categories_edit&id={%id%}')
-                ->enableOrderableColumn()
-                ->enableTranslationColumn()
-            )
-            ->addColumn(ColumnDelete::getInstance()
-                ->setHref('?p=' . P . '&do=_categories_delete&id={%id%}')
-            )
-        ;
+        echo CmsTableHelper::outputTable([
+            'data' => $categories,
+            'columns' => [
+                'title' => [
+                    'translation' => true,
+                ],
+            ],
+            'active' => true,
+            'edit' => true,
+            'orders' => true,
+            'delete' => true,
+        ]);
     }
 
-    private static function __categories_add_edit_form($data = NULL)
+    /**
+     * @param int $category_id
+     *
+     * @return CmsForm
+     */
+    private static function _categories_add_edit_form(int $category_id = 0): CmsForm
     {
-        return CmsFormHelper::outputForm(ModuleFaq::$tables['categories'], [
-            'action' => '?p='. P .'&do=_categories_add',
-            'button' => 'Add',
-            'data' => $data,
+        $category = new FaqCategoryEntity($category_id);
+
+        return CmsFormHelper::outputForm([
+            'table' => $category->getDbTableName(),
+            'data' => $category,
+            'button' => 'save',
             'fields' => [
                 'title' => [
                     'translation' => true,
@@ -186,20 +199,12 @@ class CmsFaq
 
     public static function categories_add()
     {
-        echo self::__categories_add_edit_form();
+        echo self::_categories_add_edit_form();
     }
 
     public static function categories_edit()
     {
-        if (!isset($_GET['id']) || !ctype_digit((string)$_GET['id'])) return;
-        $id = $_GET['id'];
-
-        $category = new FaqCategoryEntity($id);
-
-        echo self::__categories_add_edit_form($category)
-            ->setAction('?p=' . P . '&do=_categories_edit&id=' . $id)
-            ->setSubmitButton(new CmsButton('Update'))
-        ;
+        echo self::_categories_add_edit_form((int)$_GET['id']);
     }
 
     public static function _categories_add()
@@ -209,40 +214,56 @@ class CmsFaq
         $category->save();
 
         App::add('Category '. $category->getTitle() .' created');
-
-        Messages::sendMessage('Category created');
+        Messages::sendMessage('Category '. $category->getTitle() .' created');
 
         go('?p=' . P . '&do=categories&highlight=' . $category->getId());
     }
 
     public static function _categories_edit()
     {
-        if (!isset($_GET['id']) || !ctype_digit((string)$_GET['id'])) return;
-        $id = $_GET['id'];
-
-        $category = new FaqCategoryEntity($id);
+        $category = new FaqCategoryEntity($_GET['id']);
         $category->loadDataFromArray($_POST);
         $category->save();
 
         App::add('Category '. $category->getTitle() .' updated');
+        Messages::sendMessage('Category '. $category->getTitle() .' updated');
 
-        Messages::sendMessage('Category updated');
-
-        go('?p=' . P . '&do=categories&highlight=' . $id);
+        go('?p=' . P . '&do=categories&highlight=' . $category->getId());
     }
 
     public static function _categories_delete()
     {
-        if (!isset($_GET['id']) || !ctype_digit((string)$_GET['id'])) return;
-        $id = $_GET['id'];
-
-        $category = new FaqCategoryEntity($id);
+        $category = new FaqCategoryEntity($_GET['id']);
         $category->deleteObject();
 
         App::add('Category '. $category->getTitle() .' deleted');
-
-        Messages::sendMessage('Category deleted');
+        Messages::sendMessage('Category '. $category->getTitle() .' deleted');
 
         back();
+    }
+
+    /**
+     *
+     */
+    public static function _categories_active()
+    {
+        $category = new FaqCategoryEntity($_GET['id']);
+        $category->flipBoolValue('active');
+        $category->save();
+
+        App::add('Category '. $category->getTitle() .' updated');
+        Messages::sendGreenAlert('Category '. $category->getTitle() .' updated');
+
+        if (IS_AJAX_REQUEST) {
+            die('1');
+        }
+
+        back();
+    }
+
+    public function _categories_order()
+    {
+        $category = new FaqCategoryEntity($_GET['id']);
+        $category->processOrderAction();
     }
 }

@@ -1,29 +1,44 @@
 <?php
+declare(strict_types=1);
 
 namespace TMCms\Modules\Faq\Entity;
 
 use TMCms\Orm\EntityRepository;
+use TMCms\Orm\TableStructure;
 
 /**
  * Class FaqEntityRepository
  * @package TMCms\Modules\Faq\Entity
  *
+ * @method $this setWhereActive(int $flag)
  * @method $this setWhereCategory(FaqCategoryEntity $category)
  * @method $this setWhereCategoryId(int $category_id)
  */
 class FaqEntityRepository extends EntityRepository {
-    protected $db_table = 'm_faq';
-    protected $translation_fields = ['title', 'text'];
+    const DB_TABLE_NAME = 'm_faq';
+
+    const FIELD_CATEGORY_ID = 'category_id';
+    const FIELD_TEXT = 'text';
+    const FIELD_TITLE = 'title';
+
+    protected $db_table = self::DB_TABLE_NAME;
+    protected $translation_fields = [self::FIELD_TEXT, self::FIELD_TITLE];
     protected $table_structure = [
         'fields' => [
-            'category_id' => [
-                'type' => 'index',
+            self::FIELD_CATEGORY_ID => [
+                'type' => TableStructure::FIELD_TYPE_INDEX,
             ],
-            'title' => [
-                'type' => 'translation',
+            self::FIELD_TITLE => [
+                'type' => TableStructure::FIELD_TYPE_TRANSLATION,
             ],
-            'text' => [
-                'type' => 'translation',
+            self::FIELD_TEXT => [
+                'type' => TableStructure::FIELD_TYPE_TRANSLATION,
+            ],
+            'order' => [
+                'type' => TableStructure::FIELD_TYPE_UNSIGNED_INTEGER,
+            ],
+            'active' => [
+                'type' => TableStructure::FIELD_TYPE_BOOL,
             ],
         ],
     ];

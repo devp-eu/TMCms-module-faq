@@ -1,37 +1,40 @@
 <?php
+declare(strict_types=1);
 
 namespace TMCms\Modules\Faq;
 
+use TMCms\Modules\Faq\Entity\FaqEntityRepository;
 use TMCms\Modules\IModule;
 use TMCms\Traits\singletonInstanceTrait;
-use TMCms\Modules\Faq\Entity\FaqCategoryEntityRepository;
-use TMCms\Modules\Faq\Entity\FaqEntityRepository;
 
-defined('INC') or exit;
+\defined('INC') or exit;
 
+/**
+ * Class ModuleFaq
+ * @package TMCms\Modules\Faq
+ */
 class ModuleFaq implements IModule {
-	use singletonInstanceTrait;
+    use singletonInstanceTrait;
 
-	public static $tables = array(
-		'faq' => 'm_faq',
-		'categories' => 'm_faq_categories',
-	);
+    /**
+     * @param array $params
+     *
+     * @return FaqEntityRepository
+     */
+    public static function getFaqs(array $params = []): FaqEntityRepository
+    {
+        $faqs = new FaqEntityRepository();
 
-	/**
-	 * @return array
-	 */
-	public static function getCategoryPairs() {
-		$categories = new FaqCategoryEntityRepository();
-		return $categories->getPairs('title');
-	}
+        if (isset($params[FaqEntityRepository::FIELD_CATEGORY_ID])){
+            $faqs->setWhereCategoryId($params[FaqEntityRepository::FIELD_CATEGORY_ID]);
+        }
 
-	/**
-	 * @param int $category_id
-	 * @return array
-	 */
-	public static function getFaqByCategoryId($category_id) {
-		$faqs = new FaqEntityRepository();
-		$faqs->setWhereCategoryId($category_id);
-		return $faqs->getAsArrayOfObjects();
-	}
+        if (isset($params['active'])){
+            $faqs->setWhereActive($params['active']);
+        }
+
+        $faqs->addOrderByField();
+
+        return $faqs;
+    }
 }
